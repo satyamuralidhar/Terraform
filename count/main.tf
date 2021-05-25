@@ -5,7 +5,7 @@ provider "aws" {
 }
 resource "aws_instance" "murali" {
     count = "${var.count}"
-    ami             = "${var.ami}"
+    ami             = "${lookup(var.ami, var.region)}"
     instance_type   = "${var.type}"
     key_name        = "murali"
     security_groups = ["nsg"]
