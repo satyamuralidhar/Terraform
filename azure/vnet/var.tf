@@ -8,7 +8,8 @@ variable "clientid" {
 }
 variable "clientsecret" {
 
-}variable "tenantid" {
+}
+variable "tenantid" {
 
 }
 variable "location" {
