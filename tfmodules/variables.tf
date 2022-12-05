@@ -23,3 +23,5 @@ variable "ingress_rules" {
 
 #   })
 # }
+variable "ami_id" {}
+variable "instance_type" {}

@@ -10,3 +10,19 @@
 #             availbility_zone = var.availbility_zones[1]
 #         }
 # }
+# instances = {
+#   instance1 = {
+
+#     instance_type = "t2.micro"
+  //}
+  # instance2 = {
+ 
+  #   instance_type = "t2.micro"
+  # }
+  # instance3 = {
+  #   instance_type = "t2.micro"
+  # }
+#}
+
+ami_id = ""
+instance_type = "t2.micro"

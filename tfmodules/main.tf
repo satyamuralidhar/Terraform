@@ -5,29 +5,7 @@ resource "aws_vpc" "myvpc" {
     "Name" = format("%s-%s", var.env, "network")
   }
 }
-# locals {
-#     subnets = {
-#         subnet1 = {
-#             cidr_block = "10.0.1.0/24"
-#             vpc_id = aws_vpc.myvpc.id
-#             availbility_zone = var.availbility_zones[0]
-#         },
-#         subnet2 = {
-#             cidr_block = "10.0.2.0/24"
-#             vpc_id = aws_vpc.myvpc.id
-#             availbility_zone = var.availbility_zones[1]
-#         }
-# }
-#     resource_subnet = flatten([
-#         for k,v in subnets : [
-#             for subnet in resource_subnet : {
-#                 cidr_block = v.cidr_block
-#                 vpc_id = v.vpc
-#                 availbility_zone = v.availbility_zone
-#             }
-#         ]
-#     ])
-# }
+
 resource "aws_subnet" "mysubnet" {
   count             = length(var.cidr)
   cidr_block        = element(var.cidr, count.index)
@@ -43,11 +21,6 @@ resource "aws_internet_gateway" "mygateway" {
     "Name" = format("%s-%s", var.env, "gateway")
   }
 }
-
-# resource "aws_internet_gateway_attachment" "mygatewayattchment" {
-#   internet_gateway_id = aws_internet_gateway.mygateway.id
-#   vpc_id = aws_vpc.myvpc.id
-# }
 
 resource "aws_security_group" "mynsg" {
   name   = "ssh-http-jenkins"
@@ -84,3 +57,46 @@ resource "aws_route_table_association" "rtallocation" {
   subnet_id      = aws_subnet.mysubnet[0].id
   route_table_id = aws_route_table.myroute.id
 }
+resource "aws_instance" "myvms" {
+  count = 3
+  instance_type = var.instance_type
+  ami = var.ami_id
+  security_groups = [aws_security_group.mynsg.id]
+  subnet_id = aws_subnet.mysubnet[0].id
+  tags = {
+    "Name" = format("%s-%s-%s",var.env,"server",count.index+1)
+  }
+}
+# variable "instances" {
+#   type = map(object({
+#     instance_type = map(string)
+#     //ami = string
+#   }))
+#   default     = {}
+# }
+# locals {
+#   instance = flatten([
+#     for k,v  in var.instances : [
+#       for amis in v.instance_type : { 
+#         instance_type = v.instance_type
+#         //ami = v.ami
+#       }
+#     ]
+#   ])
+# }
+
+# resource "aws_instance" "myinstance" {
+#   for_each = {for ami_id , name in local.instance : name.ami => name }
+#   instance_type = each.value.instance_type
+#   ami = ""
+#   security_groups = [ aws_security_group.mynsg.id ]
+#   subnet_id = aws_subnet.mysubnet[0].id
+#   depends_on = [
+#     aws_vpc.myvpc,
+#     aws_subnet.mysubnet[0]
+#   ]
+#   tags = {
+#     "Name" = each.key
+#     //"Name" = format("%s-%s",var.instances)
+#   }
+#}

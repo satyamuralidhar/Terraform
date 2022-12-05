@@ -1,0 +1,1 @@
+//terraform plan -out plan.tfplan && terraform show -no-color -json plan.tfplan > plan.json
