@@ -2,7 +2,7 @@ resource "aws_vpc" "myvpc" {
   cidr_block       = "192.168.0.0/16"
   instance_tenancy = "default"
   tags = {
-    "Name" = format("%s-%s", var.env, "network")
+    "Name" = format("%s-%s", terraform.workspace, "network")
   }
 }
 
@@ -12,13 +12,13 @@ resource "aws_subnet" "mysubnet" {
   vpc_id            = aws_vpc.myvpc.id
   availability_zone = element(var.availbility_zones, count.index)
   tags = {
-    "Name" = format("%s-%s-%s", var.env, "subnet", count.index + 1)
+    "Name" = format("%s-%s-%s", terraform.workspace, "subnet", count.index + 1)
   }
 }
 resource "aws_internet_gateway" "mygateway" {
   vpc_id = aws_vpc.myvpc.id
   tags = {
-    "Name" = format("%s-%s", var.env, "gateway")
+    "Name" = format("%s-%s", terraform.workspace, "gateway")
   }
 }
 
@@ -37,7 +37,7 @@ resource "aws_security_group" "mynsg" {
     }
   }
   tags = {
-    Name = format("%s-%s", var.env, "ingress-rules")
+    Name = format("%s-%s", terraform.workspace, "ingress-rules")
   }
 }
 
@@ -49,7 +49,7 @@ resource "aws_route_table" "myroute" {
     gateway_id = aws_internet_gateway.mygateway.id
   }
   tags = {
-    "Name" = format("%s-%s", var.env, "routetable")
+    "Name" = format("%s-%s", terraform.workspace, "routetable")
   }
 }
 
@@ -57,16 +57,21 @@ resource "aws_route_table_association" "rtallocation" {
   subnet_id      = aws_subnet.mysubnet[0].id
   route_table_id = aws_route_table.myroute.id
 }
+
+data "aws_key_pair" "key" {}
+
 resource "aws_instance" "myvms" {
-  count = 3
+  count = (terraform.workspace == "dev" ? 2 : 3)
   instance_type = var.instance_type
   ami = var.ami_id
   security_groups = [aws_security_group.mynsg.id]
+  key_name = data.aws_key_pair.key.key_name
   subnet_id = aws_subnet.mysubnet[0].id
   tags = {
-    "Name" = format("%s-%s-%s",var.env,"server",count.index+1)
+    "Name" = format("%s-%s-%s",terraform.workspace,"server",count.index+1)
   }
 }
+
 # variable "instances" {
 #   type = map(object({
 #     instance_type = map(string)

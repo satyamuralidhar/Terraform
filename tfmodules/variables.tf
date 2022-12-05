@@ -1,7 +1,3 @@
-
-variable "env" {
-  default = "dev"
-}
 variable "availbility_zones" {
   type    = list(any)
   default = ["ap-south-1a", "ap-south-1b"]
