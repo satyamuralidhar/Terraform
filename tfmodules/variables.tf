@@ -9,7 +9,11 @@ variable "cidr" {
 
 variable "ingress_rules" {
   type    = list(any)
-  default = ["8080", "80", "22"]
+  default = ["22","80","443","8080"]
+}
+variable "egress_rules" {
+  type    = list(any)
+  default = ["0"]
 }
 # variable "subnets" {
 #   type = object({
@@ -21,3 +25,6 @@ variable "ingress_rules" {
 # }
 variable "ami_id" {}
 variable "instance_type" {}
+variable "path" {
+  default = "key/k8s.pem"
+}

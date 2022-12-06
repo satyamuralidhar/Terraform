@@ -1,3 +1,3 @@
 output "instance_ips" {
-  value = aws_instance.myvms[*].private_ip
+  value = aws_instance.myvms[*].public_ip
 }
